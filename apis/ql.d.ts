@@ -251,9 +251,17 @@ type SELECT_from =
   (entityType: T, projection?: Projection<QLExtensions<SingularType<T>>>)
   => Awaitable<SELECT<T>, InstanceType<T>>)
 &
+  (<T extends Constructable<any>>
+  (entityType: T, projection?: Projection<QLExtensions<InstanceType<T>>>)
+  => Awaitable<SELECT<T>, PluralType<T>>)
+&
   (<T extends ArrayConstructable<any>>
   (entityType: T, primaryKey: PK, projection?: Projection<SingularType<T>>)
-  => Awaitable<SELECT<SingularType<T>>, InstanceType<SingularType<T>>>) // when specifying a key, we expect a single element as result
+  => Awaitable<SELECT<SingularType<T>>, SingularType<T>>) // when specifying a key, we expect a single element as result
+&
+  (<T extends Constructable<any>>
+  (entityType: T, primaryKey: PK, projection?: Projection<InstanceType<T>>)
+  => Awaitable<SELECT<InstanceType<T>>, InstanceType<T>>) // when specifying a key, we expect a single element as result  
 // calling with definition
   & ((entity: Target, primaryKey?: PK, projection?: Projection<unknown>) => SELECT<any>)
 // calling with concrete list
