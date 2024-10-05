@@ -10,7 +10,7 @@ export class Foo {
     refs?: Foo[]
   }
 
-export class Foos extends Array<Foo> { static readonly drafts: typeof Foo }
+export class Foos extends Array<Foo> { static readonly drafts: typeof Foos }
 
 
 // for bound/ unbound actions

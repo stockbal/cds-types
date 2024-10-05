@@ -233,6 +233,55 @@ srv.before('DELETE', Foos, req => isOne(req))
 srv.after('DELETE', Foo, (data) => { isOne(data); return data })
 srv.after('DELETE', Foos, (data) => isOne(data))
 
+// Test handler registration for drafts in singular and plural form
+srv.on('CREATE', Foo.drafts, (req, next) => { isOne(req); return next() })
+srv.on('CREATE', Foos.drafts, (req, next) => { isOne(req); return next() })
+srv.before('CREATE', Foo.drafts, req => { isOne(req); return req.data })
+srv.before('CREATE', Foos.drafts, req => isOne(req))
+srv.after('CREATE', Foo.drafts, (data) => { isOne(data); return data })
+srv.after('CREATE', Foos.drafts, (data) => isOne(data))
+
+// Handlers with classes. Singular and plural are to be reflected in what the handler receives
+srv.on('READ', Foo.drafts, (req, next) => { isOne(req); return next() })
+srv.on('READ', Foos.drafts, (req, next) => { isOne(req); return next() })
+srv.before('READ', Foo.drafts, req => { isOne(req); return req.data })
+srv.before('READ', Foos.drafts, req => isOne(req))
+
+/* WARNING: This will not return a single object but an array during runtime, as the .drafts entity
+ * will not get a `is_singular: true` property from cds-typer.
+ * 
+ * see @sap/cds:/lib/srv/srv-handlers.js
+ * ------------------------------------
+ * 77:  else if (phase === 'after' && ( event === 'each'    //> srv.after ('each', Book, b => ...)    // event 'each' => READ each
+ * 78:    || event === 'READ' && path?.is_singular          //> srv.after ('READ', Book, b => ...)    // Book is a singular def from cds-typer
+ * 79:    || event === 'READ' && /^\(?each\b/.test(handler) //> srv.after ('READ', Book, each => ...) // handler's first param is named 'each'
+ * 80:  )) {
+ */
+srv.after('READ', Foo.drafts, (data) => { isOne(data); return data })
+srv.after("each", Foos.drafts, (data) => { isOne(data); return data })
+/**
+ * Using the plural for `drafts` at the array typer entity actually gives us the
+ * workaround to get the correct array type inference
+ */
+srv.after('READ', Foos.drafts, (data) => isMany(data))
+
+srv.after('EACH', Foo.drafts, (data) => { isOne(data); return data })
+srv.after('EACH', Foos.drafts, (data) => isOne(data))
+
+srv.on('UPDATE', Foo.drafts, (req, next) => { isOne(req); return next() })
+srv.on('UPDATE', Foos.drafts, (req, next) => { isOne(req); return next() })
+srv.before('UPDATE', Foo.drafts, req => { isOne(req); return req.data })
+srv.before('UPDATE', Foos.drafts, req => isOne(req))
+srv.after('UPDATE', Foo.drafts, (data) => { isOne(data); return data })
+srv.after('UPDATE', Foos.drafts, (data) => isOne(data))
+
+srv.on('DELETE', Foo.drafts, (req, next) => { isOne(req); return next() })
+srv.on('DELETE', Foos.drafts, (req, next) => { isOne(req); return next() })
+srv.before('DELETE', Foo.drafts, req => { isOne(req); return req.data })
+srv.before('DELETE', Foos.drafts, req => isOne(req))
+srv.after('DELETE', Foo.drafts, (data) => { isOne(data); return data })
+srv.after('DELETE', Foos.drafts, (data) => isOne(data))
+
 // unbound
 srv.before(action, (req) => {
   req.data.foo
